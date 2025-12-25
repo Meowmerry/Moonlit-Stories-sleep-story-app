@@ -36,7 +36,7 @@ async def health_check():
 @app.post("/api/generate", response_model=StoryResponse)
 async def generate_story(request: StoryRequest):
     try:
-        story, provider = await ai_generator.generate_story(request)
+        story, provider = ai_generator.generate_story(request)
 
         return StoryResponse(
             story=story,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Moon, Sparkles, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import { Moon, Sparkles, Pause, Play } from 'lucide-react';
 import './styles.css'
 
 function SleepStoryGenerator() {
@@ -19,8 +19,10 @@ function SleepStoryGenerator() {
   const [showFavorites, setShowFavorites] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
-   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [stars, setStars] = useState([])
+  const [currentWordIndex, setCurrentWordIndex] = useState(-1)
+  const [readingSpeed, setReadingSpeed] = useState(0.75)
+  const [voiceGender, setVoiceGender] = useState('female')
 
   // Generate starfield on mount
   useEffect(() => {
@@ -41,7 +43,8 @@ function SleepStoryGenerator() {
 
   const fetchOptions = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/options')
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${apiUrl}/api/options`)
       const data = await response.json()
       setOptions(data)
     } catch (err) {
@@ -83,7 +86,8 @@ function SleepStoryGenerator() {
     stopSpeaking()
 
     try {
-      const response = await fetch('http://localhost:8000/api/generate', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${apiUrl}/api/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,24 +115,56 @@ function SleepStoryGenerator() {
       return
     }
 
+    // Split text into words for highlighting
+    const words = text.split(/\s+/)
+
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.rate = 0.75
+    utterance.rate = readingSpeed
     utterance.pitch = 0.9
     utterance.volume = 0.8
 
-    // Try to use a calm voice
+    // Select voice based on gender preference
     const voices = speechSynthesis.getVoices()
-    const preferredVoice = voices.find(v =>
-      v.name.includes('Female') ||
-      v.name.includes('Samantha') ||
-      v.name.includes('Karen')
-    )
-    if (preferredVoice) utterance.voice = preferredVoice
+    let selectedVoice = null
 
-    utterance.onstart = () => setIsPlaying(true)
+    if (voiceGender === 'female') {
+      selectedVoice = voices.find(v =>
+        v.name.includes('Female') ||
+        v.name.includes('Samantha') ||
+        v.name.includes('Karen') ||
+        v.name.includes('Victoria') ||
+        v.name.includes('Zira')
+      )
+    } else {
+      selectedVoice = voices.find(v =>
+        v.name.includes('Male') ||
+        v.name.includes('David') ||
+        v.name.includes('Daniel') ||
+        v.name.includes('Mark')
+      )
+    }
+
+    if (selectedVoice) utterance.voice = selectedVoice
+
+    utterance.onstart = () => {
+      setIsPlaying(true)
+      setCurrentWordIndex(0)
+    }
+
+    // Use boundary event for precise word-by-word highlighting
+    utterance.onboundary = (event) => {
+      if (event.name === 'word') {
+        // Calculate which word we're at based on character position
+        const textUpToNow = text.substring(0, event.charIndex)
+        const wordCount = textUpToNow.trim().split(/\s+/).length - 1
+        setCurrentWordIndex(Math.min(wordCount, words.length - 1))
+      }
+    }
+
     utterance.onend = () => {
       setIsPlaying(false)
       setIsPaused(false)
+      setCurrentWordIndex(-1)
     }
 
     speechSynthesis.speak(utterance)
@@ -152,6 +188,7 @@ function SleepStoryGenerator() {
     speechSynthesis.cancel()
     setIsPlaying(false)
     setIsPaused(false)
+    setCurrentWordIndex(-1)
   }
 
   const getMoodEmoji = (mood) => {
@@ -290,15 +327,48 @@ function SleepStoryGenerator() {
                     ))}
                   </div>
                 </div>
-                {/* Voice Toggle */}
-                <div className="voice-toggle-container">
-                  <button
-                    onClick={() => setVoiceEnabled(!voiceEnabled)}
-                    className="voice-toggle-button"
-                  >
-                    {voiceEnabled ? <Volume2 className="voice-icon" /> : <VolumeX className="voice-icon" />}
-                    <span>{voiceEnabled ? 'Voice enabled' : 'Voice disabled'}</span>
-                  </button>
+                {/* Voice Settings */}
+                <div className="voice-settings-section">
+                  <label className="input-label">Voice Settings</label>
+
+                  {/* Voice Gender Selection */}
+                  <div className="voice-gender-container">
+                    <button
+                      onClick={() => setVoiceGender('female')}
+                      className={`voice-gender-button ${voiceGender === 'female' ? 'selected' : ''}`}
+                    >
+                      👩 Female Voice
+                    </button>
+                    <button
+                      onClick={() => setVoiceGender('male')}
+                      className={`voice-gender-button ${voiceGender === 'male' ? 'selected' : ''}`}
+                    >
+                      👨 Male Voice
+                    </button>
+                  </div>
+
+                  {/* Reading Speed Slider */}
+                  <div className="speed-control-container">
+                    <label className="speed-label">
+                      Reading Speed: {readingSpeed === 0.5 ? 'Very Slow' : readingSpeed === 0.75 ? 'Slow' : readingSpeed === 1 ? 'Normal' : readingSpeed === 1.25 ? 'Fast' : 'Very Fast'}
+                    </label>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="1.5"
+                      step="0.25"
+                      value={readingSpeed}
+                      onChange={(e) => setReadingSpeed(parseFloat(e.target.value))}
+                      className="speed-slider"
+                    />
+                    <div className="speed-markers">
+                      <span>0.5x</span>
+                      <span>0.75x</span>
+                      <span>1x</span>
+                      <span>1.25x</span>
+                      <span>1.5x</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Generate Button */}
@@ -354,7 +424,14 @@ function SleepStoryGenerator() {
                 )}
 
                 <div className="story-content">
-                  {story}
+                  {story.split(/\s+/).map((word, index) => (
+                    <span
+                      key={index}
+                      className={`story-word ${index === currentWordIndex ? 'highlighted' : ''}`}
+                    >
+                      {word}{' '}
+                    </span>
+                  ))}
                 </div>
               </div>
             )}

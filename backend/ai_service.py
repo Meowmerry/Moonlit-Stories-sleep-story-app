@@ -62,20 +62,25 @@ class AIStoryGenerator:
     def __init__(self):
         self.anthropic_client = None
         self.openai_client = None
+        self.last_error = None  # Track the last error
 
         if settings.anthropic_api_key and settings.anthropic_api_key != "your_anthropic_api_key_here":
             try:
                 self.anthropic_client = anthropic.Anthropic(
                     api_key=settings.anthropic_api_key)
+                print("✓ Anthropic client initialized successfully")
             except Exception as e:
-                print(f"Failed to initialize Anthropic client: {e}")
+                print(f"✗ Failed to initialize Anthropic client: {e}")
+                self.last_error = str(e)
 
         if settings.openai_api_key and settings.openai_api_key != "your_openai_api_key_here":
             try:
                 self.openai_client = openai.OpenAI(
                     api_key=settings.openai_api_key)
+                print("✓ OpenAI client initialized successfully")
             except Exception as e:
-                print(f"Failed to initialize OpenAI client: {e}")
+                print(f"✗ Failed to initialize OpenAI client: {e}")
+                self.last_error = str(e)
 
     def _build_user_prompt(self, request: StoryRequest) -> str:
         length_mapping = {
@@ -99,15 +104,19 @@ Create a soothing, peaceful story that helps the listener drift into deep, restf
 
         return prompt
 
-    async def generate_with_claude(self, request: StoryRequest) -> Optional[str]:
+    def generate_with_claude(self, request: StoryRequest) -> Optional[str]:
+        """Removed async - Anthropic SDK is synchronous"""
         if not self.anthropic_client:
+            self.last_error = "Anthropic client not initialized"
             return None
 
         try:
             user_prompt = self._build_user_prompt(request)
 
+            print(f"Calling Claude API...")
+
             message = self.anthropic_client.messages.create(
-                model="claude-sonnet-4-20241022",
+                model="claude-haiku-4-5-20251001",  # Updated to latest Haiku
                 max_tokens=2048,
                 temperature=0.7,
                 system=SYSTEM_PROMPT,
@@ -116,17 +125,25 @@ Create a soothing, peaceful story that helps the listener drift into deep, restf
                 ]
             )
 
+            print(f"✓ Claude API call successful")
             return message.content[0].text
+
         except Exception as e:
-            print(f"Claude generation failed: {e}")
+            error_msg = f"Claude generation failed: {str(e)}"
+            print(error_msg)
+            self.last_error = error_msg
             return None
 
-    async def generate_with_openai(self, request: StoryRequest) -> Optional[str]:
+    def generate_with_openai(self, request: StoryRequest) -> Optional[str]:
+        """Removed async - OpenAI SDK is synchronous"""
         if not self.openai_client:
+            self.last_error = "OpenAI client not initialized"
             return None
 
         try:
             user_prompt = self._build_user_prompt(request)
+
+            print(f"Calling OpenAI API...")
 
             response = self.openai_client.chat.completions.create(
                 model="gpt-4",
@@ -138,23 +155,32 @@ Create a soothing, peaceful story that helps the listener drift into deep, restf
                 max_tokens=2000
             )
 
+            print(f"✓ OpenAI API call successful")
             return response.choices[0].message.content
+
         except Exception as e:
-            print(f"OpenAI generation failed: {e}")
+            error_msg = f"OpenAI generation failed: {str(e)}"
+            print(error_msg)
+            self.last_error = error_msg
             return None
 
-    async def generate_story(self, request: StoryRequest) -> tuple[str, str]:
+    def generate_story(self, request: StoryRequest) -> tuple[str, str]:
+        """Removed async - make this synchronous"""
+        self.last_error = None
+
         # Try Claude first
-        story = await self.generate_with_claude(request)
+        story = self.generate_with_claude(request)
         if story:
             return story, "claude"
 
         # Fallback to OpenAI
-        story = await self.generate_with_openai(request)
+        story = self.generate_with_openai(request)
         if story:
             return story, "openai"
 
-        raise Exception("Both AI providers failed to generate story")
+        # Provide detailed error message
+        error_detail = self.last_error or "Both AI providers failed to generate story"
+        raise Exception(error_detail)
 
 
 ai_generator = AIStoryGenerator()

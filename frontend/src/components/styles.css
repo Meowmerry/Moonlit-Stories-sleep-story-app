@@ -395,43 +395,117 @@ body {
 }
 
 /* ========================================
-   VOICE TOGGLE
+   VOICE SETTINGS
    ======================================== */
 
-.voice-toggle-container {
-  display: flex;
-  align-items: center;
-  padding-top: 0.5rem;
+.voice-settings-section {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.voice-toggle-button {
+.voice-gender-container {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.voice-gender-button {
+  flex: 1;
+  padding: 0.875rem 1.25rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   color: #b8c5e0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
 }
 
-.voice-toggle-button:hover {
+.voice-gender-button:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(168, 192, 255, 0.3);
-  color: #e4e8f0;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(168, 192, 255, 0.15);
 }
 
-.voice-icon {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
+.voice-gender-button.selected {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+  border-color: rgba(168, 192, 255, 0.5);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(168, 192, 255, 0.3);
+}
+
+.speed-control-container {
+  margin-top: 1rem;
+}
+
+.speed-label {
+  display: block;
+  color: #b8c5e0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.speed-slider {
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border-radius: 10px;
+  outline: none;
+  -webkit-appearance: none;
+  margin-bottom: 0.5rem;
+}
+
+.speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.speed-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+}
+
+.speed-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.speed-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+}
+
+.speed-markers {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.25rem;
+}
+
+.speed-markers span {
+  color: #8896b8;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 /* ========================================
@@ -611,12 +685,26 @@ body {
   line-height: 1.9;
   font-size: 1.1rem;
   color: #d0d8ec;
-  white-space: pre-wrap;
   text-align: left;
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.story-word {
+  transition: all 0.3s ease;
+  display: inline;
+}
+
+.story-word.highlighted {
+  background: linear-gradient(135deg, rgba(168, 192, 255, 0.4) 0%, rgba(221, 179, 255, 0.4) 100%);
+  color: #ffffff;
+  padding: 0.2rem 0.3rem;
+  border-radius: 6px;
+  font-weight: 600;
+  box-shadow: 0 0 15px rgba(168, 192, 255, 0.5);
+  animation: wordPulse 0.3s ease;
 }
 
 /* ========================================
@@ -768,6 +856,18 @@ body {
   }
   50% {
     transform: translateY(-10px);
+  }
+}
+
+@keyframes wordPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
