@@ -52,7 +52,9 @@ async def health_check():
 @app.post("/api/generate", response_model=StoryResponse)
 async def generate_story(request: StoryRequest):
     try:
+        print(f"Received story request: {request}")
         story, provider = ai_generator.generate_story(request)
+        print(f"Successfully generated story using {provider}")
 
         return StoryResponse(
             story=story,
@@ -60,7 +62,9 @@ async def generate_story(request: StoryRequest):
             timestamp=datetime.now().isoformat()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error generating story: {str(e)}")
+        error_detail = f"{str(e)} (Last error: {ai_generator.last_error})"
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 @app.get("/api/options")
