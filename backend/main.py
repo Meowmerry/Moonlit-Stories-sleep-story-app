@@ -4,7 +4,11 @@ from datetime import datetime
 from models import StoryRequest, StoryResponse
 from ai_service import ai_generator
 
-app = FastAPI(title="AI Sleep Story Generator API")
+app = FastAPI(
+    title="AI Sleep Story Generator API",
+    description="Generate personalized bedtime stories using Claude AI",
+    version="1.0.0"
+)
 
 # CORS configuration for React frontend
 app.add_middleware(
