@@ -36,7 +36,13 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+    from config import settings
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "anthropic_configured": bool(settings.anthropic_api_key and settings.anthropic_api_key != "your_anthropic_api_key_here"),
+        "openai_configured": bool(settings.openai_api_key and settings.openai_api_key != "your_openai_api_key_here")
+    }
 
 
 @app.post("/api/generate", response_model=StoryResponse)

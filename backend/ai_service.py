@@ -108,12 +108,13 @@ Create a soothing, peaceful story that helps the listener drift into deep, restf
         """Removed async - Anthropic SDK is synchronous"""
         if not self.anthropic_client:
             self.last_error = "Anthropic client not initialized"
+            print(f"✗ {self.last_error}")
             return None
 
         try:
             user_prompt = self._build_user_prompt(request)
 
-            print(f"Calling Claude API...")
+            print(f"Calling Claude API with model: claude-haiku-4-5-20251001")
 
             message = self.anthropic_client.messages.create(
                 model="claude-haiku-4-5-20251001",  # Updated to latest Haiku
@@ -131,6 +132,7 @@ Create a soothing, peaceful story that helps the listener drift into deep, restf
         except Exception as e:
             error_msg = f"Claude generation failed: {str(e)}"
             print(error_msg)
+            print(f"Error type: {type(e).__name__}")
             self.last_error = error_msg
             return None
 
