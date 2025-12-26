@@ -24,10 +24,10 @@
    - Go to https://vercel.com/new
    - Import your GitHub repository
    - Select the `backend` directory as the root directory
-   - Framework Preset: "Other"
+   - Framework Preset: **"Other"** (this is correct for FastAPI)
    - Build Command: (leave empty)
    - Output Directory: (leave empty)
-   - Install Command: `pip install -r requirements.txt`
+   - Install Command: (leave empty - Vercel auto-detects requirements.txt)
 
 3. **Set Environment Variables for Backend**
    - In Vercel project settings → Environment Variables, add:
@@ -105,19 +105,22 @@ If you want both frontend and backend in one deployment:
 
 ### CORS Errors
 - Make sure backend allows frontend domain in CORS settings
-- Update `main.py` to include your frontend URL:
+- Update `backend/main.py` line 12 to include your Vercel frontend URL:
 ```python
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://your-frontend.vercel.app"  # Add this
+        "http://localhost:5174",
+        "https://your-frontend-name.vercel.app",  # Add your actual Vercel URL
+        "https://*.vercel.app"  # Or allow all Vercel preview deployments
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 ```
+- After updating, redeploy the backend
 
 ### API Key Not Working
 - Verify environment variables are set correctly in Vercel dashboard

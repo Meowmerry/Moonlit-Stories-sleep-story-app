@@ -43,7 +43,7 @@ function SleepStoryGenerator() {
 
   const fetchOptions = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
       const response = await fetch(`${apiUrl}/api/options`)
       const data = await response.json()
       setOptions(data)
@@ -86,7 +86,7 @@ function SleepStoryGenerator() {
     stopSpeaking()
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
       const response = await fetch(`${apiUrl}/api/generate`, {
         method: 'POST',
         headers: {
