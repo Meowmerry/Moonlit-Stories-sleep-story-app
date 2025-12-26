@@ -114,10 +114,10 @@ Create a soothing, peaceful story that helps the listener drift into deep, restf
         try:
             user_prompt = self._build_user_prompt(request)
 
-            print(f"Calling Claude API with model: claude-haiku-4-5-20251001")
+            print(f"Calling Claude API with model: claude-3-5-haiku-20241022")
 
             message = self.anthropic_client.messages.create(
-                model="claude-haiku-4-5-20251001",  # Updated to latest Haiku
+                model="claude-3-5-haiku-20241022",  # Claude 3.5 Haiku (valid model)
                 max_tokens=2048,
                 temperature=0.7,
                 system=SYSTEM_PROMPT,
