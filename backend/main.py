@@ -41,11 +41,15 @@ async def root():
 @app.get("/health")
 async def health_check():
     from config import settings
+    import os
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "anthropic_configured": bool(settings.anthropic_api_key and settings.anthropic_api_key != "your_anthropic_api_key_here"),
-        "openai_configured": bool(settings.openai_api_key and settings.openai_api_key != "your_openai_api_key_here")
+        "openai_configured": bool(settings.openai_api_key and settings.openai_api_key != "your_openai_api_key_here"),
+        "env_var_set": bool(os.getenv("ANTHROPIC_API_KEY")),
+        "api_key_first_15": settings.anthropic_api_key[:15] if settings.anthropic_api_key else None,
+        "client_initialized": bool(ai_generator.anthropic_client)
     }
 
 

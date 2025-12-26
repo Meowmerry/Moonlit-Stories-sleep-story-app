@@ -64,6 +64,10 @@ class AIStoryGenerator:
         self.openai_client = None
         self.last_error = None  # Track the last error
 
+        print(f"Initializing AIStoryGenerator...")
+        print(f"Anthropic API key present: {bool(settings.anthropic_api_key)}")
+        print(f"Anthropic API key starts with: {settings.anthropic_api_key[:15] if settings.anthropic_api_key else 'None'}...")
+
         if settings.anthropic_api_key and settings.anthropic_api_key != "your_anthropic_api_key_here":
             try:
                 self.anthropic_client = anthropic.Anthropic(
@@ -72,6 +76,8 @@ class AIStoryGenerator:
             except Exception as e:
                 print(f"✗ Failed to initialize Anthropic client: {e}")
                 self.last_error = str(e)
+        else:
+            print("✗ No valid Anthropic API key found")
 
         if settings.openai_api_key and settings.openai_api_key != "your_openai_api_key_here":
             try:
